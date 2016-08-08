@@ -42,5 +42,4 @@ if __name__ == '__main__':
             with open(filepath, 'w') as f:
                 for d in data:
                     f.write('%s\n' % json.dumps(d))
-            date = date.replace(days=+1)
-# col = ['upper_price', 'lower_price', 'middle_price', 'date', 'amount', 'id', 'name', 'market_id', 'market_name', 'mean_price']
+        date = date.replace(days=+1)
