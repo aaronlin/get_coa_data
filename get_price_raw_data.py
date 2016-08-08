@@ -2,6 +2,7 @@
 import requests
 import json
 import arrow
+import os
 
 
 def get_data(date):
@@ -21,6 +22,7 @@ def get_data(date):
             break
     return data
 
+
 def convert_to_taiwan_year(date):
     year = date.year - 1911
     month = date.month
@@ -30,7 +32,15 @@ def convert_to_taiwan_year(date):
 
 
 if __name__ == '__main__':
-    start_date = arrow.get('2016-01-01')
-    data = get_data(convert_to_taiwan_year(start_date))
-
-#col = ['upper_price', 'lower_price', 'middle_price', 'date', 'amount', 'id', 'name', 'market_id', 'market_name', 'mean_price']
+    now = arrow.utcnow()
+    date = arrow.get('2015-01-01')
+    while date < now:
+        print 'getting data of %s...' % date.format('YYYY-MM-DD')
+        filepath = 'data/%s.txt' % date.format('YYYY-MM-DD')
+        if not os.path.exists(filepath):
+            data = get_data(convert_to_taiwan_year(date))
+            with open(filepath, 'w') as f:
+                for d in data:
+                    f.write('%s\n' % json.dumps(d))
+            date = date.replace(days=+1)
+# col = ['upper_price', 'lower_price', 'middle_price', 'date', 'amount', 'id', 'name', 'market_id', 'market_name', 'mean_price']
