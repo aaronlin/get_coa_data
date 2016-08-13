@@ -1,4 +1,5 @@
-from bottle import Bottle, route, run, response
+from bottle import run, response
+import bottle
 import sqlite3
 import json
 
@@ -6,18 +7,26 @@ import json
 db = sqlite3.connect('../data/AgriDB.sqlite')
 cursor = db.cursor()
 resume_schema = ['pid', 'date', 'operation', 'detail', 'memo']
-app = Bottle()
+app = bottle.app()
 
 
 @app.hook('after_request')
-def enable_cors():
-    print("after_request hook")
-    response.headers['Access-Control-Allow-Origin'] = '*'
-    response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, OPTIONS'
-    response.headers['Access-Control-Allow-Headers'] = 'Origin, Accept, Content-Type, X-Requested-With, X-CSRF-Token'
+# the decorator
+def enable_cors(fn):
+    def _enable_cors(*args, **kwargs):
+        # set CORS headers
+        response.headers['Access-Control-Allow-Origin'] = '*'
+        response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, OPTIONS'
+        response.headers['Access-Control-Allow-Headers'] = 'Origin, Accept, Content-Type, X-Requested-With, X-CSRF-Token'
+
+        if bottle.request.method != 'OPTIONS':
+            # actual request; reply with the actual response
+            return fn(*args, **kwargs)
+
+    return _enable_cors
 
 
-@route('/resume/<pid>')
+@app.route('/resume/<pid>')
 @enable_cors
 def get_resume(pid):
     cursor.execute(
