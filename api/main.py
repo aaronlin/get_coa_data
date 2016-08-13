@@ -48,11 +48,11 @@ def get_resume(pid):
 def get_categories():
     cursor.execute(
         '''
-        select id, PName, img_path from product
+        select id, PName, img_path, mean_price from product
         where img_path is not null
         order by img_path
         ''')
-    schema = ['category_id', 'category', 'img_path']
+    schema = ['category_id', 'category', 'img_path', 'mean_price']
     result = []
     for category in cursor.fetchall():
         result.append(dict(zip(schema, category)))
