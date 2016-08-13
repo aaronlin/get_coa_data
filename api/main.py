@@ -50,7 +50,7 @@ def get_categories():
         '''
         select id, PName, img_path, mean_price from product
         where img_path is not null
-        order by img_path
+        order by img_path desc
         ''')
     schema = ['category_id', 'category', 'img_path', 'mean_price']
     result = []
