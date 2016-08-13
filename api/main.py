@@ -6,7 +6,6 @@ import json
 
 db = sqlite3.connect('../data/AgriDB.sqlite')
 cursor = db.cursor()
-resume_schema = ['pid', 'product', 'farmer', 'place', 'date', 'operation', 'detail', 'memo']
 app = bottle.app()
 
 
@@ -39,12 +38,29 @@ def get_resume(pid):
         where ONP.PID = %s
         ''' % pid)
     result = []
+    schema = ['pid', 'product', 'farmer', 'place', 'date', 'operation', 'detail', 'memo']
     for resume in cursor.fetchall():
-        result.append(dict(zip(resume_schema, resume)))
+        result.append(dict(zip(schema, resume)))
+    return json.dumps(result)
+
+
+@app.route('/')
+def get_products():
+    cursor.execute(
+        '''
+        select product.id, agrigood.PName, count(1) as count
+        from agrigood join product on agrigood.PName = product.PName
+        group by agrigood.PName
+        order by count desc
+        limit 100
+        ''')
+    schema = ['category_id', 'product', 'count']
+    result = []
+    for product in cursor.fetchall():
+        result.append(dict(zip(schema, product)))
     return json.dumps(result)
 
 app.install(EnableCors())
-
 
 if __name__ == '__main__':
     run(host='0.0.0.0', port=8080)
