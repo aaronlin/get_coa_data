@@ -6,7 +6,6 @@ import json
 db = sqlite3.connect('../data/AgriDB.sqlite')
 cursor = db.cursor()
 resume_schema = ['pid', 'date', 'operation', 'detail', 'memo']
-
 app = Bottle()
 
 
@@ -19,6 +18,7 @@ def enable_cors():
 
 
 @route('/resume/<pid>')
+@enable_cors
 def get_resume(pid):
     cursor.execute(
         '''
