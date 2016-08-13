@@ -64,9 +64,9 @@ def get_products(category_id):
     category_id = int(category_id)
     cursor.execute(
         '''
-        select PName from product where id = %d
+        select PName, img_path from product where id = %d
         ''' % category_id)
-    category_name = cursor.fetchone()[0]
+    category_name, img_path = cursor.fetchone()
 
     cursor.execute(
         '''
@@ -79,7 +79,9 @@ def get_products(category_id):
               'update_date', 'is_certificated']
     result = []
     for product in cursor.fetchall():
-        result.append(dict(zip(schema, product)))
+        data = dict(zip(schema, product))
+        data.update({'img_path': img_path})
+        result.append(data)
     return json.dumps(result)
 
 
