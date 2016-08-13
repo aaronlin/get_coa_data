@@ -6,8 +6,9 @@ import json
 
 db = sqlite3.connect('../data/AgriDB.sqlite')
 cursor = db.cursor()
-resume_schema = ['pid', 'date', 'operation', 'detail', 'memo']
+resume_schema = ['pid', 'product', 'farmer', 'place', 'date', 'operation', 'detail', 'memo']
 app = bottle.app()
+
 
 class EnableCors(object):
     name = 'enable_cors'
@@ -31,7 +32,11 @@ class EnableCors(object):
 def get_resume(pid):
     cursor.execute(
         '''
-        select * from OnP where PID = %s order by Date
+        select OnP.PID, PName, FName, Place, Date, Type, Detail, Memo
+        from OnP join
+            (select PID, PName, FName, Place from agrigood) as A
+        on OnP.PID = A.PID
+        where ONP.PID = %s
         ''' % pid)
     result = []
     for resume in cursor.fetchall():
