@@ -48,14 +48,11 @@ def get_resume(pid):
 def get_categories():
     cursor.execute(
         '''
-        select product.id, agrigood.PName, count(1) as count
-        from agrigood join product
-            on agrigood.PName = product.PName
-        group by agrigood.PName
-        order by count desc
-        limit 100
+        select id, PName, img_path from product
+        where img_path is not null
+        order by PName
         ''')
-    schema = ['category_id', 'category', 'count']
+    schema = ['category_id', 'category', 'img_path']
     result = []
     for category in cursor.fetchall():
         result.append(dict(zip(schema, category)))
@@ -67,11 +64,16 @@ def get_products(category_id):
     category_id = int(category_id)
     cursor.execute(
         '''
-        select PID, agrigood.PName, FName, Place, PackDate, Info, OName,
-            CName, ValidDate, OnP, Certificate
-        from agrigood join (select * from product where id = %d) as A
-            on agrigood.PName = A.PName
+        select PName from product where id = %d
         ''' % category_id)
+    category_name = cursor.fetchone()[0]
+
+    cursor.execute(
+        '''
+        select PID, PName, FName, Place, PackDate, Info, OName,
+            CName, ValidDate, OnP, Certificate
+        from agrigood where PName like '%%%s%%'
+        ''' % category_name)
     schema = ['product_id', 'product', 'farmer', 'place', 'package_date',
               'info', 'organization', 'certificate_company', 'valid_date',
               'update_date', 'is_certificated']
