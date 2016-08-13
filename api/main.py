@@ -45,20 +45,41 @@ def get_resume(pid):
 
 
 @app.route('/')
-def get_products():
+def get_categories():
     cursor.execute(
         '''
         select product.id, agrigood.PName, count(1) as count
-        from agrigood join product on agrigood.PName = product.PName
+        from agrigood join product
+            on agrigood.PName = product.PName
         group by agrigood.PName
         order by count desc
         limit 100
         ''')
-    schema = ['category_id', 'product', 'count']
+    schema = ['category_id', 'category', 'count']
+    result = []
+    for category in cursor.fetchall():
+        result.append(dict(zip(schema, category)))
+    return json.dumps(result)
+
+
+@app.route('/category/<category_id>')
+def get_products(category_id):
+    category_id = int(category_id)
+    cursor.execute(
+        '''
+        select PID, agrigood.PName, FName, Place, PackDate, Info, OName,
+            CName, ValidDate, OnP, Certificate
+        from agrigood join (select * from product where id = %d) as A
+            on agrigood.PName = A.PName
+        ''' % category_id)
+    schema = ['product_id', 'product', 'farmer', 'place', 'package_date',
+              'info', 'organization', 'certificate_company', 'valid_date',
+              'update_date', 'is_certificated']
     result = []
     for product in cursor.fetchall():
         result.append(dict(zip(schema, product)))
     return json.dumps(result)
+
 
 app.install(EnableCors())
 
