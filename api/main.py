@@ -73,6 +73,7 @@ def get_products(category_id):
         select PID, PName, FName, Place, PackDate, Info, OName,
             CName, ValidDate, OnP, Certificate
         from agrigood where PName like '%%%s%%'
+        limit 20
         ''' % category_name)
     schema = ['product_id', 'product', 'farmer', 'place', 'package_date',
               'info', 'organization', 'certificate_company', 'valid_date',
